@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Script Library</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    background: #f5f5f7;
+    color: #1d1d1f;
+    min-height: 100vh;
+  }
+
+  header {
+    background: rgba(245,245,247,0.85);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    position: sticky; top: 0; z-index: 100;
+    padding: 0 24px;
+    height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
+  .seg {
+    display: flex; background: rgba(0,0,0,0.06);
+    border-radius: 9px; padding: 2px; gap: 2px;
+  }
+  .seg button {
+    background: transparent; border: none;
+    font-family: inherit; font-size: 13px; font-weight: 500;
+    color: #6e6e73; padding: 5px 14px; border-radius: 7px;
+    cursor: pointer; transition: all .15s;
+  }
+  .seg button.active {
+    background: #fff; color: #1d1d1f;
+    box-shadow: 0 1px 3px rgba(0,0,0,.12);
+  }
+
+  .search-wrap {
+    max-width: 660px; margin: 28px auto 0; padding: 0 20px;
+    position: relative;
+  }
+  .search-wrap svg {
+    position: absolute; left: 36px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; color: #8e8e93; pointer-events: none;
+  }
+  input[type=text] {
+    width: 100%; height: 44px; background: #fff;
+    border: none; border-radius: 12px;
+    padding: 0 16px 0 42px;
+    font-family: inherit; font-size: 15px; color: #1d1d1f;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.04);
+    outline: none; transition: box-shadow .2s;
+  }
+  input[type=text]:focus { box-shadow: 0 0 0 3px rgba(0,122,255,.25), 0 1px 4px rgba(0,0,0,.08); }
+  input::placeholder { color: #8e8e93; }
+
+  .content { max-width: 660px; margin: 0 auto; padding: 24px 20px 80px; }
+
+  .section-label {
+    font-size: 12px; font-weight: 600; color: #8e8e93;
+    letter-spacing: .5px; text-transform: uppercase;
+    margin: 28px 0 8px 4px;
+  }
+
+  .group {
+    background: #fff; border-radius: 16px; overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.04);
+  }
+
+  /* TYPED ROW */
+  .row {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(0,0,0,.06);
+  }
+  .row:last-child { border-bottom: none; }
+  .row-left { flex: 1; min-width: 0; }
+
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 5px; margin-bottom: 4px;
+  }
+  .badge-sw { background: #e8f0fe; color: #1a56db; }
+  .badge-ai { background: #e6f9f0; color: #0a7c42; }
+  .badge-draft { background: #fff8e1; color: #b45309; }
+
+  .row-label { font-size: 12px; color: #8e8e93; margin-bottom: 3px; }
+  .row-text { font-size: 15px; color: #1d1d1f; line-height: 1.55; }
+
+  /* HANDWRITTEN ROW */
+  .row.handwritten {
+    background: #fffdf5;
+    border-left: 3px solid #f5c842;
+    position: relative;
+  }
+  .row.handwritten .row-text {
+    font-family: 'Caveat', 'Comic Sans MS', cursive;
+    font-size: 17px;
+    color: #2c2c2e;
+    line-height: 1.5;
+  }
+  .row.handwritten .row-label {
+    font-size: 11px; color: #b45309;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .row.handwritten .row-label::before {
+    content: '✏️'; font-size: 11px;
+  }
+
+  .copy-btn {
+    flex-shrink: 0; margin-top: 2px;
+    background: #f5f5f7; border: none; border-radius: 8px;
+    color: #6e6e73; font-family: inherit; font-size: 13px; font-weight: 500;
+    padding: 6px 12px; cursor: pointer; transition: all .15s;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .copy-btn svg { width: 13px; height: 13px; }
+  .copy-btn:hover { background: #e5e5ea; color: #1d1d1f; }
+  .copy-btn.ok { background: #e6f9f0; color: #0a7c42; }
+
+  .row.handwritten .copy-btn { background: #fef3c7; color: #92400e; }
+  .row.handwritten .copy-btn:hover { background: #fde68a; color: #78350f; }
+
+  .group-wrap.hidden { display: none; }
+  .row.hidden { display: none; }
+  #empty { display: none; text-align: center; padding: 60px 0; color: #8e8e93; font-size: 15px; }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header>
+  <div class="logo">Script Library</div>
+  <div class="seg">
+    <button class="active" onclick="setFilter('all',this)">All</button>
+    <button onclick="setFilter('sw',this)">Software</button>
+    <button onclick="setFilter('ai',this)">AI</button>
+  </div>
+</header>
+
+<div class="search-wrap">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+  <input type="text" placeholder="Search scripts…" oninput="applyAll(this.value)">
+</div>
+
+<div class="content">
+
+  <!-- SW HOOKS -->
+  <div class="group-wrap" data-cat="sw">
+    <div class="section-label">Software — Hooks</div>
+    <div class="group">
+      <div class="row" data-cat="sw" data-t="Are you a business owner stuck using software that almost works but never quite does what you need?">
+        <div class="row-left"><span class="badge badge-sw">Software</span><div class="row-label">Hook · Script 1</div><div class="row-text">Are you a business owner stuck using software that almost works but never quite does what you need?</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row" data-cat="sw" data-t="Are you a founder trying to scale while your internal tools are slowing you down?">
+        <div class="row-left"><span class="badge badge-sw">Software</span><div class="row-label">Hook · Script 2</div><div class="row-text">Are you a founder trying to scale while your internal tools are slowing you down?</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row" data-cat="sw" data-t="Are you a CEO frustrated that your software is dictating how your business runs?">
+        <div class="row-left"><span class="badge badge-sw">Software</span><div class="row-label">Hook · Script 3</div><div class="row-text">Are you a CEO frustrated that your software is dictating how your business runs?</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row" data-cat="sw" data-t="Are you a business owner juggling multiple platforms just to complete one simple workflow?">
+        <div class="row-left"><span class="badge badge-sw">Software</span><div class="row-label">Hook · Script 4</div><div class="row-text">Are you a business owner juggling multiple platforms just to complete one simple workflow?</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row" data-cat="sw" data-t="Are you a business owner building on top of systems that were never designed for long term growth?">
+        <div class="row-left"><span class="badge badge-sw">Software</span><div class="row-label">Hook · Script 5</div><div class="row-text">Are you a business owner building on top of systems that were never designed for long term growth?</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI HOOKS -->
+  <div class="group-wrap" data-cat="ai">
+    <div class="section-label">AI — Hooks</div>
+    <div class="group">
+      <div class="row" data-cat="ai" data-t="Are you a business owner struggling to respond to every enquiry before the lead goes cold?">
+        <div class="row-left"><span class="badge badge-ai">AI</span><div class="row-label">Hook · Script 1</div><div class="row-text">Are you a business owner struggling to respond to every enquiry before the lead goes cold?</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row" data-cat="ai" data-t="Are you a CEO drowning in inbound enquiries while trying to manage growth?">
+        <div class="row-left"><span class="badge badge-ai">AI</span><div class="row-label">Hook · Script 2</div><div class="row-text">Are you a CEO drowning in inbound enquiries while trying to manage growth?</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row" data-cat="ai" data-t="Are you a business owner missing calls while in meetings or on site?">
+        <div class="row-left"><span class="badge badge-ai">AI</span><div class="row-label">Hook · Script 3</div><div class="row-text">Are you a business owner missing calls while in meetings or on site?</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row" data-cat="ai" data-t="Are you a business owner relying on admin staff to manage every enquiry manually?">
+        <div class="row-left"><span class="badge badge-ai">AI</span><div class="row-label">Hook · Script 4</div><div class="row-text">Are you a business owner relying on admin staff to manage every enquiry manually?</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row" data-cat="ai" data-t="Are you a business owner running ads but not maximising the ROI from every click?">
+        <div class="row-left"><span class="badge badge-ai">AI</span><div class="row-label">Hook · Script 5</div><div class="row-text">Are you a business owner running ads but not maximising the ROI from every click?</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <!-- HANDWRITTEN AI HOOKS -->
+      <div class="row handwritten" data-cat="ai" data-t="Overwhelmed, tired, trying to scale — as a business owner you can't be everywhere.">
+        <div class="row-left"><span class="badge badge-draft">Draft</span><div class="row-label">Hook · Handwritten Note</div><div class="row-text">Overwhelmed, tired, trying to scale — as a business owner you can't be everywhere.</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row handwritten" data-cat="ai" data-t="Your calls are going unanswered and every hour you don't respond, that's potential revenue slipping away.">
+        <div class="row-left"><span class="badge badge-draft">Draft</span><div class="row-label">Hook · Handwritten Note</div><div class="row-text">Your calls are going unanswered and every hour you don't respond, that's potential revenue slipping away.</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SW MIDDLE -->
+  <div class="group-wrap" data-cat="sw">
+    <div class="section-label">Software — Middle Scripts</div>
+    <div class="group">
+      <div class="row" data-cat="sw" data-t="Most growing businesses outgrow their systems before they realise it. Teams rely on spreadsheets, duplicate data across platforms and build manual workarounds just to keep operations moving. We design and build custom software around how your business actually runs. Integrated systems, automated workflows and real time visibility replace fragmented tools and repetitive admin. Instead of slowing you down, your infrastructure becomes the engine that supports scale, improves margins and removes operational friction.">
+        <div class="row-left"><span class="badge badge-sw">Software</span><div class="row-label">Middle · Script 1</div><div class="row-text">Most growing businesses outgrow their systems before they realise it. Teams rely on spreadsheets, duplicate data across platforms and build manual workarounds just to keep operations moving. We design and build custom software around how your business actually runs. Integrated systems, automated workflows and real time visibility replace fragmented tools and repetitive admin. Instead of slowing you down, your infrastructure becomes the engine that supports scale, improves margins and removes operational friction.</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row" data-cat="sw" data-t="When demand increases, weak infrastructure gets exposed. Reporting becomes inconsistent, approvals take longer and teams spend more time fixing problems than moving forward. We build scalable web and software applications that centralise your data, automate repetitive tasks and connect every moving part of your operation. The result is clarity, control and the confidence to grow without worrying about what might break next.">
+        <div class="row-left"><span class="badge badge-sw">Software</span><div class="row-label">Middle · Script 2</div><div class="row-text">When demand increases, weak infrastructure gets exposed. Reporting becomes inconsistent, approvals take longer and teams spend more time fixing problems than moving forward. We build scalable web and software applications that centralise your data, automate repetitive tasks and connect every moving part of your operation. The result is clarity, control and the confidence to grow without worrying about what might break next.</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row" data-cat="sw" data-t="Off the shelf tools are built for the average company, not your unique workflows. Over time that misalignment creates inefficiencies, delays and hidden costs. We map your processes, identify bottlenecks and engineer bespoke solutions that automate and integrate everything seamlessly. Instead of managing disconnected tools, you operate from a unified system built specifically for your goals. That shift transforms tech from a cost centre into a growth asset.">
+        <div class="row-left"><span class="badge badge-sw">Software</span><div class="row-label">Middle · Script 3</div><div class="row-text">Off the shelf tools are built for the average company, not your unique workflows. Over time that misalignment creates inefficiencies, delays and hidden costs. We map your processes, identify bottlenecks and engineer bespoke solutions that automate and integrate everything seamlessly. Instead of managing disconnected tools, you operate from a unified system built specifically for your goals. That shift transforms tech from a cost centre into a growth asset.</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI MIDDLE -->
+  <div class="group-wrap" data-cat="ai">
+    <div class="section-label">AI — Middle Scripts</div>
+    <div class="group">
+      <div class="row" data-cat="ai" data-t="Leads move quickly. When calls go unanswered or follow ups are delayed, prospects simply choose someone else. Our AI agents handle enquiries instantly, qualify leads consistently and book appointments automatically, even after hours. Every enquiry is captured, every follow up is triggered and every opportunity is managed without relying on manual effort. Instead of leaking revenue, your business operates with predictable, scalable responsiveness.">
+        <div class="row-left"><span class="badge badge-ai">AI</span><div class="row-label">Middle · Script 1</div><div class="row-text">Leads move quickly. When calls go unanswered or follow ups are delayed, prospects simply choose someone else. Our AI agents handle enquiries instantly, qualify leads consistently and book appointments automatically, even after hours. Every enquiry is captured, every follow up is triggered and every opportunity is managed without relying on manual effort. Instead of leaking revenue, your business operates with predictable, scalable responsiveness.</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row" data-cat="ai" data-t="As your marketing works, the volume increases, but human capacity does not. Teams spend hours answering the same questions, chasing confirmations and managing follow ups. Our AI agents take over those repetitive interactions across phone, website and social channels, responding in seconds and freeing your team to focus on high value work. The result is faster response times, improved customer experience and more deals closed without increasing headcount.">
+        <div class="row-left"><span class="badge badge-ai">AI</span><div class="row-label">Middle · Script 2</div><div class="row-text">As your marketing works, the volume increases, but human capacity does not. Teams spend hours answering the same questions, chasing confirmations and managing follow ups. Our AI agents take over those repetitive interactions across phone, website and social channels, responding in seconds and freeing your team to focus on high value work. The result is faster response times, improved customer experience and more deals closed without increasing headcount.</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row" data-cat="ai" data-t="Generating traffic is only half the equation. The real difference is what happens after someone shows interest. Our AI agents ensure every enquiry is answered immediately, qualified properly and guided toward booking or conversion. No missed calls, no forgotten follow ups and no gaps in your sales process. What you pay for in advertising finally converts into measurable, predictable growth.">
+        <div class="row-left"><span class="badge badge-ai">AI</span><div class="row-label">Middle · Script 3</div><div class="row-text">Generating traffic is only half the equation. The real difference is what happens after someone shows interest. Our AI agents ensure every enquiry is answered immediately, qualified properly and guided toward booking or conversion. No missed calls, no forgotten follow ups and no gaps in your sales process. What you pay for in advertising finally converts into measurable, predictable growth.</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <!-- HANDWRITTEN AI MIDDLE -->
+      <div class="row handwritten" data-cat="ai" data-t="Now imagine doubling leads + revenue, all without hiring a single person. That's where we come in.">
+        <div class="row-left"><span class="badge badge-draft">Draft</span><div class="row-label">Middle · Handwritten Note</div><div class="row-text">Now imagine doubling leads + revenue, all without hiring a single person. That's where we come in.</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row handwritten" data-cat="ai" data-t="Our AI agents handle operations so seamlessly, it's like having a business running on Autopilot. + Automated proposals.">
+        <div class="row-left"><span class="badge badge-draft">Draft</span><div class="row-label">Middle · Handwritten Note</div><div class="row-text">Our AI agents handle operations so seamlessly, it's like having a business running on Autopilot. + Automated proposals.</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row handwritten" data-cat="ai" data-t="Imagine doubling your leads + revenue, all without hiring a single person. That's exactly what we did for a service business just like yours facing similar challenges.">
+        <div class="row-left"><span class="badge badge-draft">Draft</span><div class="row-label">Middle · Handwritten Note</div><div class="row-text">Imagine doubling your leads + revenue, all without hiring a single person. That's exactly what we did for a service business just like yours facing similar challenges.</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SW CTAs -->
+  <div class="group-wrap" data-cat="sw">
+    <div class="section-label">Software — Calls to Action</div>
+    <div class="group">
+      <div class="row" data-cat="sw" data-t="Click the link below to get started and see how we can streamline your systems.">
+        <div class="row-left"><span class="badge badge-sw">Software</span><div class="row-label">CTA · Script 1</div><div class="row-text">Click the link below to get started and see how we can streamline your systems.</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row" data-cat="sw" data-t="Click the link below and book your complimentary systems audit today.">
+        <div class="row-left"><span class="badge badge-sw">Software</span><div class="row-label">CTA · Script 2</div><div class="row-text">Click the link below and book your complimentary systems audit today.</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row" data-cat="sw" data-t="Get in touch with us today and see how the right software can transform your business processes.">
+        <div class="row-left"><span class="badge badge-sw">Software</span><div class="row-label">CTA · Script 3</div><div class="row-text">Get in touch with us today and see how the right software can transform your business processes.</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI CTAs -->
+  <div class="group-wrap" data-cat="ai">
+    <div class="section-label">AI — Calls to Action</div>
+    <div class="group">
+      <div class="row" data-cat="ai" data-t="If missed opportunities are costing you revenue, it is time to automate properly. Click the below to see how AI agents can help.">
+        <div class="row-left"><span class="badge badge-ai">AI</span><div class="row-label">CTA · Script 1</div><div class="row-text">If missed opportunities are costing you revenue, it is time to automate properly. Click the below to see how AI agents can help.</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row" data-cat="ai" data-t="Free up your team and make your sales process predictable. Click the link below and get started today.">
+        <div class="row-left"><span class="badge badge-ai">AI</span><div class="row-label">CTA · Script 2</div><div class="row-text">Free up your team and make your sales process predictable. Click the link below and get started today.</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <div class="row" data-cat="ai" data-t="Never miss another opportunity. Visit Hypex.au and book your AI strategy call today.">
+        <div class="row-left"><span class="badge badge-ai">AI</span><div class="row-label">CTA · Script 3</div><div class="row-text">Never miss another opportunity. Visit Hypex.au and book your AI strategy call today.</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+      <!-- HANDWRITTEN CTA -->
+      <div class="row handwritten" data-cat="ai" data-t="Click the link → Free Audit → We'll show you exactly where you can save time + money.">
+        <div class="row-left"><span class="badge badge-draft">Draft</span><div class="row-label">CTA · Handwritten Note</div><div class="row-text">Click the link → Free Audit → We'll show you exactly where you can save time + money.</div></div>
+        <button class="copy-btn" onclick="cp(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="empty">No results found.</div>
+</div>
+
+<script>
+let activeF = 'all';
+
+function setFilter(cat, btn) {
+  activeF = cat;
+  document.querySelectorAll('.seg button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyAll(document.querySelector('input').value);
+}
+
+function applyAll(q) {
+  const lq = q.toLowerCase().trim();
+  let any = false;
+  document.querySelectorAll('.group-wrap').forEach(gw => {
+    const catOk = activeF === 'all' || gw.dataset.cat === activeF;
+    if (!catOk) { gw.style.display = 'none'; return; }
+    let groupAny = false;
+    gw.querySelectorAll('.row').forEach(row => {
+      const show = !lq || row.dataset.t.toLowerCase().includes(lq);
+      row.style.display = show ? '' : 'none';
+      if (show) { groupAny = true; any = true; }
+    });
+    gw.style.display = groupAny ? '' : 'none';
+  });
+  document.getElementById('empty').style.display = any ? 'none' : 'block';
+}
+
+function cp(btn) {
+  const t = btn.closest('.row').dataset.t;
+  navigator.clipboard.writeText(t).then(() => {
+    const orig = btn.innerHTML;
+    btn.classList.add('ok');
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Copied`;
+    setTimeout(() => { btn.classList.remove('ok'); btn.innerHTML = orig; }, 2000);
+  });
+}
+</script>
+</body>
+</html>
